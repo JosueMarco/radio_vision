@@ -3,9 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-
 <title>Radio Visión 920 AM</title>
 
 <style>
@@ -49,6 +46,7 @@
     animation: blink 1.5s infinite;
   }
   @keyframes blink { 50% { opacity: 0.5; } }
+  
   h2 { margin: 15px 0 5px 0; font-size: 22px; }
   #status { font-size: 14px; color: #cbd5e1; margin-bottom: 20px; height: 20px; }
 
@@ -80,9 +78,10 @@
   <div class="live">🔴 EN VIVO</div>
   <p id="status">Listo para reproducir</p>
 
-  <div class="eq" id="eq"></div>
+  <div class="eq" id="eq">
+    </div>
 
-  <audio id="audio" crossorigin="anonymous" playsinline referrerpolicy="no-referrer">
+  <audio id="audio" crossorigin="anonymous" playsinline>
     <source src="http://82.145.41.8:3625/;" type="audio/mpeg">
   </audio>
 
@@ -115,7 +114,6 @@ function updateMetadata() {
       artist: 'En Vivo',
       artwork: [{ src: 'https://i.postimg.cc/pL2t5pVY/logo-png.png', sizes: '512x512', type: 'image/png' }]
     });
-    navigator.mediaSession.playbackState = "playing";
   }
 }
 
@@ -136,10 +134,8 @@ function stopEQ() {
 function togglePlay() {
   if (!isPlaying) {
     status.innerHTML = "Conectando...";
-    // Forzamos recarga con un parámetro aleatorio para evitar caché
-    audio.src = "http://82.145.41.8:3625/;" + Date.now();
+    // Forzamos recarga para que siempre sea tiempo real
     audio.load();
-    
     audio.play().then(() => {
       isPlaying = true;
       btn.innerHTML = "⏸ PAUSAR";
@@ -147,12 +143,11 @@ function togglePlay() {
       updateMetadata();
       startEQ();
     }).catch(err => {
-      status.innerHTML = "Error: Use la App o active HTTP";
+      status.innerHTML = "Error al conectar";
       console.log(err);
     });
   } else {
     audio.pause();
-    audio.src = ""; // Cortamos la descarga
     isPlaying = false;
     btn.innerHTML = "▶ REPRODUCIR";
     status.innerHTML = "Pausado";
@@ -161,7 +156,21 @@ function togglePlay() {
 }
 
 btn.addEventListener("click", togglePlay);
-volume.addEventListener("input", () => { audio.volume = volume.value; });
+
+volume.addEventListener("input", () => {
+  audio.volume = volume.value;
+});
+
+audio.addEventListener('stalled', () => {
+  if(isPlaying) status.innerHTML = "Recuperando señal...";
+});
+
+audio.addEventListener('error', () => {
+  if(isPlaying) {
+    status.innerHTML = "Reconectando...";
+    setTimeout(() => { audio.load(); audio.play(); }, 3000);
+  }
+});
 </script>
 
 </body>
