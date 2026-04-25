@@ -3,88 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
 <title>Radio Visión 920 AM</title>
-
 <style>
   * { transition: all 0.25s ease; box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: radial-gradient(circle at top, #ff2a2a30, #0f172a 40%, #020617);
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
-  }
-  .card {
-    width: 90%;
-    max-width: 400px;
-    padding: 30px;
-    border-radius: 30px;
-    text-align: center;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  .logo {
-    width: 160px;
-    height: 160px;
-    object-fit: cover;
-    border-radius: 20px;
-    box-shadow: 0 0 30px rgba(255, 42, 42, 0.5);
-    margin-bottom: 15px;
-  }
-  .live {
-    background: #ff2a2a;
-    padding: 6px 15px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: bold;
-    display: inline-block;
-    animation: blink 1.5s infinite;
-  }
+  body { margin: 0; font-family: Arial, sans-serif; background: radial-gradient(circle at top, #ff2a2a30, #0f172a 40%, #020617); color: white; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+  .card { width: 90%; max-width: 400px; padding: 30px; border-radius: 30px; text-align: center; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+  .logo { width: 160px; height: 160px; object-fit: cover; border-radius: 20px; box-shadow: 0 0 30px rgba(255, 42, 42, 0.5); margin-bottom: 15px; }
+  .live { background: #ff2a2a; padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; animation: blink 1.5s infinite; }
   @keyframes blink { 50% { opacity: 0.5; } }
-  
   h2 { margin: 15px 0 5px 0; font-size: 22px; }
   #status { font-size: 14px; color: #cbd5e1; margin-bottom: 20px; height: 20px; }
-
-  button {
-    width: 100%;
-    padding: 16px;
-    border: none;
-    border-radius: 50px;
-    background: #ff2a2a;
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(255, 42, 42, 0.3);
-  }
-  button:active { transform: scale(0.98); }
-
+  button { width: 100%; padding: 16px; border: none; border-radius: 50px; background: #ff2a2a; color: white; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 42, 42, 0.3); }
   .eq { display: flex; justify-content: center; align-items: flex-end; gap: 4px; height: 30px; margin: 20px 0; }
   .bar { width: 5px; border-radius: 3px; background: #ff2a2a; height: 5px; }
-  
   input[type=range] { width: 80%; margin-top: 20px; accent-color: #ff2a2a; }
 </style>
 </head>
 <body>
-
 <div class="card">
   <img class="logo" src="https://i.postimg.cc/pL2t5pVY/logo-png.png" alt="Logo">
   <h2>Radio Visión 920 AM</h2>
   <div class="live">🔴 EN VIVO</div>
   <p id="status">Listo para reproducir</p>
-
-  <div class="eq" id="eq">
-    </div>
-
-  <audio id="audio" crossorigin="anonymous" playsinline>
-    <source src="http://82.145.41.8:3625/" type="audio/mpeg">
-  </audio>
-
+  <div class="eq" id="eq"></div>
+  <audio id="audio" crossorigin="anonymous" playsinline></audio>
   <button id="btn">▶ REPRODUCIR</button>
   <br>
   <input type="range" min="0" max="1" step="0.05" value="0.8" id="volume">
@@ -96,10 +39,10 @@ const btn = document.getElementById("btn");
 const status = document.getElementById("status");
 const volume = document.getElementById("volume");
 const eqContainer = document.getElementById("eq");
-
 let isPlaying = false;
 let eqInterval;
 
+// Crear barras de ecualizador
 for (let i = 0; i < 12; i++) {
   let bar = document.createElement("div");
   bar.className = "bar";
@@ -107,22 +50,9 @@ for (let i = 0; i < 12; i++) {
 }
 const bars = document.querySelectorAll(".bar");
 
-function updateMetadata() {
-  if ('mediaSession' in navigator) {
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: 'Radio Visión 920 AM',
-      artist: 'En Vivo',
-      artwork: [{ src: 'https://i.postimg.cc/pL2t5pVY/logo-png.png', sizes: '512x512', type: 'image/png' }]
-    });
-  }
-}
-
 function startEQ() {
   eqInterval = setInterval(() => {
-    bars.forEach(bar => {
-      let h = Math.random() * 25 + 5;
-      bar.style.height = h + "px";
-    });
+    bars.forEach(bar => { bar.style.height = (Math.random() * 25 + 5) + "px"; });
   }, 150);
 }
 
@@ -134,20 +64,21 @@ function stopEQ() {
 function togglePlay() {
   if (!isPlaying) {
     status.innerHTML = "Conectando...";
-    // Forzamos recarga para que siempre sea tiempo real
+    // EL TRUCO: Forzamos la carga del link que sí te funciona
+    audio.src = "http://82.145.41.8:3625/;" + Date.now(); 
     audio.load();
     audio.play().then(() => {
       isPlaying = true;
       btn.innerHTML = "⏸ PAUSAR";
       status.innerHTML = "Transmitiendo en vivo";
-      updateMetadata();
       startEQ();
     }).catch(err => {
-      status.innerHTML = "Error al conectar";
+      status.innerHTML = "Error de conexión";
       console.log(err);
     });
   } else {
     audio.pause();
+    audio.src = ""; 
     isPlaying = false;
     btn.innerHTML = "▶ REPRODUCIR";
     status.innerHTML = "Pausado";
@@ -156,22 +87,7 @@ function togglePlay() {
 }
 
 btn.addEventListener("click", togglePlay);
-
-volume.addEventListener("input", () => {
-  audio.volume = volume.value;
-});
-
-audio.addEventListener('stalled', () => {
-  if(isPlaying) status.innerHTML = "Recuperando señal...";
-});
-
-audio.addEventListener('error', () => {
-  if(isPlaying) {
-    status.innerHTML = "Reconectando...";
-    setTimeout(() => { audio.load(); audio.play(); }, 3000);
-  }
-});
+volume.addEventListener("input", () => { audio.volume = volume.value; });
 </script>
-
 </body>
 </html>
