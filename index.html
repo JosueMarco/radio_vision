@@ -64,8 +64,8 @@ function stopEQ() {
 function togglePlay() {
   if (!isPlaying) {
     status.innerHTML = "Conectando...";
-    // EL TRUCO: Forzamos la carga del link que sí te funciona
-    audio.src = "https://82.145.41.8:3625/;" + Date.now(); 
+    audio.src = "https://uk21freenew.listen2myradio.com:3625/;stream.mp3";
+     
     audio.load();
     audio.play().then(() => {
       isPlaying = true;
