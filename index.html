@@ -64,7 +64,7 @@ function stopEQ() {
 function togglePlay() {
   if (!isPlaying) {
     status.innerHTML = "Conectando...";
-    audio.src = "https://uk21freenew.listen2myradio.com:3625/;stream.mp3";
+    audio.src = "http://82.145.41.8:3625/;" + Date.now();
      
     audio.load();
     audio.play().then(() => {
